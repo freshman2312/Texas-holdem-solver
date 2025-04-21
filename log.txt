@@ -1,0 +1,76 @@
+3/24: 
+new bucket based on new db7 and db6. now named db7-new, and will be changed if new one is better.
+think twice whether 15b is necessary, try 10b later
+read slumbot paper and think action abstraction
+check mismatch after bucket7 is ready
+
+3/25:
+new db file has no mismatch. just use it.
+try quadratic prob instead of cubic when calculating bucketing
+have tried to use intervention to prevent action with low prob, see if it works
+
+3/27:
+observe trend that in first 300-400 games will perform well(-20~0 bb/100), while in later games will lose more. Confirm with 
+original author that slumbot cannot evolve, so seems strange. or out of luck only?
+still trying to manually cut actions with prob less than 0.05, see how it goes.
+update bckt5 set based on new db5 file. 
+starting new bucketing of 10 buckets for turn and river
+
+3/28:
+interview:
+research experience: CAE-Computer-Aided Engineering, Ford and other companies including financial.
+working experience: intelligent agent of Dota, then Taize. worked on AlphaGo, Gobang agent and then Holdem agent.
+prospect of RL: not good, can focus on gaming and Recommendation Algorithm, research fields like RL with HF-Human Feedback. 
+    greatly influenced by LLM and Transformer, especially in Intelligent Driving.
+suggestion: take some research on RA, as well as some gaming agents.
+prospect of our company: already succeed on one TPU, still in some demand.
+
+3/28:
+adjust parameters:
+for FLOP: alpha = 1.0, beta = 10.0(not that important though), gemma = 0.4 produces more slumbot-like result.
+but not be tested yet
+for TURN: alpha = 5.0, beta = 10.0, gamma = 0.5 produces slumbot-like result but more aggressive, meaning more bet.
+
+3/31:
+trying bucketing using their ranking instead of their winrate, say, we distribute uniformly into each bucket according to a sorted order.
+correction: change the bucket prob in test.py so that strategy profile is suitable and looks good
+back up buckets using [return ((1/40) * (x - midpoint)) ** 1.75 + midpoint] for bucket6 and [return ((1/10) * (x - midpoint)) ** 1.75 + midpoint]
+for bucket7 as non-linear function in backup folder->buckets.
+then try using doubling bucketing method for turn and river stage
+start recording winnings pictures, 
+seems that when turning to 10 buckets, winnings tend to be larger, so variance is bigger in results. (here 10 bucks are using cubic prob distribution)
+
+4/2:
+start calculating solutions for 15-buc case with quadratic prob distribution. seems logical since in first few buckets strategy is quite similar, or in first several buckets 
+it's rational to stay conservative consistently
+
+4/3:
+start evaluating solutions for 10-buc case with quadratic prob distribution. buckets distribution concentrates on the left part, and strategy profile seems weird: in middle bucs
+bet is high while for strong hands check is leading. both in turn and river
+try raising the bar for action prob to 0.1
+seems alpha from 4.0-100.0 wont have great effect on final total gain. at least in 10000 iterations this is the case.
+try restarting the solution that combine turn and river street. now running transprob program. 
+after 40k iterations, totgain comes to 45 and 36 for turn and river.
+try changing the recurrence function in cfr calgain function.
+
+4/7:
+calculating solution for turn-river round together. 
+find out why the betting amount is not based on big blind but the last bet in previous street instead.
+
+4/8:
+for turn-river solver, totgain goes to 700-1000, but strategy is quite concentrated, like one of actions has 100% strategy
+try using bayesian optimization to find a best buc prob distribution. now seems very much concentrated distribution can produce small totgain, but
+its not what we want, next time try directly using winnings as reward function.
+
+4/15:
+using bayesian optimization to find best alpha and beta, but seems the result solution can't win more than before.
+previous optimization process is for 10 bucs case, now starting 15 bucs case.
+try 20 bucs
+
+4/16:
+modify the terminal chip count of turn-river round, restart bucketing of 20 bucs
+seems turn-river solution needs parameter modification. apply optimization for alpha here and reduce fluctuation
+15bucs+cubic distribution may produce 56 bb/100
+
+4/17:
+try bucketing using relevant winrate instead of absolute winrate.
